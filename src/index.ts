@@ -6,9 +6,7 @@ import {
 import { ICommandPalette, InstanceTracker } from "@jupyterlab/apputils";
 import { Widget } from "@phosphor/widgets";
 import { Message } from "@phosphor/messaging";
-import {
-  JSONExt // new
-} from "@phosphor/coreutils";
+import { JSONExt } from "@phosphor/coreutils";
 
 import "../style/index.css";
 
