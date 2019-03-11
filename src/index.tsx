@@ -8,55 +8,47 @@ import { Widget } from "@phosphor/widgets";
 import { Message } from "@phosphor/messaging";
 import { JSONExt } from "@phosphor/coreutils";
 
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+import App from "./App";
+
 import "../style/index.css";
 
 /**
- * An xckd comic viewer.
+ * An search viewer.
  */
-class XkcdWidget extends Widget {
+class SearchWidget extends Widget {
   /**
-   * Construct a new xkcd widget.
+   * Construct a new search widget.
    */
   constructor() {
     super();
 
-    this.id = "xkcd-jupyterlab";
-    this.title.label = "xkcd.com";
+    this.id = "search";
+    this.title.label = "Stackoverflow";
     this.title.closable = true;
-    this.addClass("jp-xkcdWidget");
+    this.addClass("searchWidget");
 
-    this.img = document.createElement("img");
-    this.img.className = "jp-xkcdCartoon";
-    this.node.appendChild(this.img);
-
-    this.img.insertAdjacentHTML(
-      "afterend",
-      `<div class="jp-xkcdAttribution">
-        <a href="https://creativecommons.org/licenses/by-nc/2.5/" class="jp-xkcdAttribution" target="_blank">
-          <img src="https://licensebuttons.net/l/by-nc/2.5/80x15.png" />
-        </a>
-      </div>`
-    );
+    this.rootReact = document.createElement("div");
+    this.rootReact.setAttribute("id", "rootReact");
+    this.node.appendChild(this.rootReact);
   }
 
   /**
-   * The image element associated with the widget.
+   * The div element associated with the widget.
    */
-  readonly img: HTMLImageElement;
+  readonly rootReact: HTMLDivElement;
 
-  /**
-   * Handle update requests for the widget.
-   */
-  onUpdateRequest(msg: Message): void {
-    fetch("https://egszlpbmle.execute-api.us-east-1.amazonaws.com/prod")
-      .then(response => {
-        return response.json();
-      })
-      .then(data => {
-        this.img.src = data.img;
-        this.img.alt = data.title;
-        this.img.title = data.alt;
-      });
+  // /**
+  //  * Handle update requests for the widget.
+  //  */
+  // onUpdateRequest(msg: Message): void {
+  //   ReactDOM.render(<App />, document.getElementById("rootReact") as HTMLElement);
+  // }
+  onActivateRequest(msg: Message): void {
+    ReactDOM.render(<App />, document.getElementById(
+      "rootReact"
+    ) as HTMLElement);
   }
 }
 
@@ -68,19 +60,17 @@ function activate(
   palette: ICommandPalette,
   restorer: ILayoutRestorer
 ) {
-  console.log("JupyterLab extension jupyterlab_xkcd is activated!");
-
   // Declare a widget variable
-  let widget: XkcdWidget;
+  let widget: SearchWidget;
 
   // Add an application command
-  const command: string = "xkcd:open";
+  const command: string = "search:open";
   app.commands.addCommand(command, {
-    label: "Random xkcd comic",
+    label: "Stackoverflow",
     execute: () => {
       if (!widget) {
         // Create a new widget if one does not exist
-        widget = new XkcdWidget();
+        widget = new SearchWidget();
         widget.update();
       }
       if (!tracker.has(widget)) {
@@ -100,23 +90,23 @@ function activate(
   });
 
   // Add the command to the palette.
-  palette.addItem({ command, category: "Tutorial" });
+  palette.addItem({ command, category: "Search" });
 
   // Track and restore the widget state
-  let tracker = new InstanceTracker<Widget>({ namespace: "xkcd" });
+  let tracker = new InstanceTracker<Widget>({ namespace: "search" });
   restorer.restore(tracker, {
     command,
     args: () => JSONExt.emptyObject,
-    name: () => "xkcd"
+    name: () => "search"
   });
 }
 
 /**
- * Initialization data for the ext01 extension.
+ * Initialization data for the ext_search extension.
  */
 
 const extension: JupyterLabPlugin<void> = {
-  id: "ext01",
+  id: "ext_search",
   autoStart: true,
   requires: [ICommandPalette, ILayoutRestorer],
   activate: activate
